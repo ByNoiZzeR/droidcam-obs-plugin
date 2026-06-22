@@ -6,12 +6,14 @@ def main():
     
     project_dir = "ios-client"
     xcodeproj_dir = os.path.join(project_dir, "ios-client.xcodeproj")
+    shared_data_dir = os.path.join(xcodeproj_dir, "xcshareddata")
+    schemes_dir = os.path.join(shared_data_dir, "xcschemes")
     source_dir = os.path.join(project_dir, "ios-client")
     assets_dir = os.path.join(source_dir, "Assets.xcassets")
     appicon_dir = os.path.join(assets_dir, "AppIcon.appiconset")
     
     # Create directories
-    for d in [xcodeproj_dir, source_dir, assets_dir, appicon_dir]:
+    for d in [xcodeproj_dir, shared_data_dir, schemes_dir, source_dir, assets_dir, appicon_dir]:
         os.makedirs(d, exist_ok=True)
         print(f"Created directory: {d}")
         
@@ -82,7 +84,7 @@ def main():
     with open(os.path.join(appicon_dir, "Contents.json"), "w") as f:
         f.write(appicon_contents)
         
-    # Write project.pbxproj
+    # Write project.pbxproj (with ad-hoc signing allowed)
     pbxproj_content = """// !$*UTF8*$!
 {
 	archiveVersion = 1;
@@ -355,8 +357,8 @@ def main():
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Manual;
-				CODE_SIGN_IDENTITY = "";
-				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				INFOPLIST_FILE = "ios-client/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -377,8 +379,8 @@ def main():
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Manual;
-				CODE_SIGN_IDENTITY = "";
-				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				INFOPLIST_FILE = "ios-client/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -423,6 +425,58 @@ def main():
     with open(os.path.join(xcodeproj_dir, "project.pbxproj"), "w") as f:
         f.write(pbxproj_content)
         print(f"Generated project.pbxproj file at: {os.path.join(xcodeproj_dir, 'project.pbxproj')}")
+
+    # Write ios-client.xcscheme shared scheme configuration
+    scheme_content = """<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "1300"
+   version = "1.3">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9B0106012C12345600123456"
+               BuildableName = "ios-client.app"
+               BlueprintName = "ios-client"
+               ReferencedContainer = "container:ios-client.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <LaunchAction
+      buildConfiguration = "Release"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "9B0106012C12345600123456"
+            BuildableName = "ios-client.app"
+            BlueprintName = "ios-client"
+            ReferencedContainer = "container:ios-client.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </LaunchAction>
+</Scheme>
+"""
+    with open(os.path.join(schemes_dir, "ios-client.xcscheme"), "w") as f:
+        f.write(scheme_content)
+        print(f"Generated shared scheme at: {os.path.join(schemes_dir, 'ios-client.xcscheme')}")
 
     # Write a dummy product file reference (required by some xcode builders for file indexing)
     product_app = os.path.join(xcodeproj_dir, "ios-client.app")
