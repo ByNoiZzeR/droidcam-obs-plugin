@@ -1,0 +1,45 @@
+name: Build iOS Client (IPA)
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Compile & Pack IPA
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Build Xcode Project (Unsigned)
+        run: |
+          xcodebuild -project ios-client/ios-client.xcodeproj \
+                     -scheme ios-client \
+                     -configuration Release \
+                     -sdk iphoneos \
+                     CODE_SIGNING_ALLOWED=NO \
+                     CODE_SIGNING_REQUIRED=NO \
+                     SYMROOT=../build \
+                     clean build
+
+      - name: Package app into IPA
+        run: |
+          mkdir -p ios-client/Payload
+          cp -r ios-client/build/Release-iphoneos/ios-client.app ios-client/Payload/
+          cd ios-client
+          zip -r ios-client.ipa Payload
+          cd ..
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-client-ipa
+          path: ios-client/ios-client.ipa
+          if-no-files-found: error
