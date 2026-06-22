@@ -54,17 +54,15 @@ jobs:
 
       - name: Package app into IPA
         run: |
-          mkdir -p ios-client/Payload
-          cp -r ios-client/build/Release-iphoneos/ios-client.app ios-client/Payload/
-          cd ios-client
+          mkdir -p Payload
+          cp -r build/Release-iphoneos/ios-client.app Payload/
           zip -r ios-client.ipa Payload
-          cd ..
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-client-ipa
-          path: ios-client/ios-client.ipa
+          path: ios-client.ipa
           if-no-files-found: error
 
       - name: Create Release and Upload IPA
@@ -72,5 +70,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create v1.0.0 --title "v1.0.0" --notes "Automated iOS client build" --clobber || true
-          gh release upload v1.0.0 ios-client/ios-client.ipa --clobber || true
+          gh release upload v1.0.0 ios-client.ipa --clobber || true
 
