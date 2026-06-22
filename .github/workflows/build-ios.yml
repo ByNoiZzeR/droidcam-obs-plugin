@@ -34,11 +34,15 @@ jobs:
                      SYMROOT=../build \
                      clean build > build.log 2>&1
 
-      - name: Print Build Log on Failure
+      - name: Commit and Push Build Log on Failure
         if: failure()
         run: |
-          echo "==== XCODEBUILD FULL LOG ON FAILURE ===="
-          cat build.log
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add build.log
+          git commit -m "Xcode build log from failed run"
+          git push origin HEAD:build-failed-log --force
+
 
       - name: Upload Build Log Artifact
         if: always()
